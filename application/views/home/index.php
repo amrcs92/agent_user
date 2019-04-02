@@ -14,11 +14,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </tr>
                     <tr>
                         <td><b>Operating System</b></td>
-                        <td><?php echo $device_type; ?></td>
+                        <td><?php echo empty($this->session->userdata('user_id'))?$os:$device_type; ?></td>
                     </tr>
                     <tr>
                         <td><b>Browser Details</b></td>
-                        <td><?php echo $browser_details; ?></td>
+                        <td><?php echo empty($this->session->userdata('user_id'))?$browser.' - '.$browser_version:$browser_details; ?></td>
                     </tr>
                     <tr>
                         <td><b>Last time loggedin</b></td>

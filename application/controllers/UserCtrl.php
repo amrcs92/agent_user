@@ -19,17 +19,20 @@ class UserCtrl extends CI_Controller
     // home page
     public function index()
     {
-        // $data['browser'] = $this->agent->browser();
-        // $data['browser_version'] = $this->agent->version();
-        // $data['os'] = $this->agent->platform();
-        // $data['ip_address'] = $this->input->ip_address();
-        // date_default_timezone_set('Africa/Cairo');
-        // $data['last_login'] = date('y-m-d h:i:sa');
-        $data = $this->UserModel->getLoggedinUserHistory($this->session->userdata('user_id'));
-        
+        $data['browser'] = $this->agent->browser();
+        $data['browser_version'] = $this->agent->version();
+        $data['os'] = $this->agent->platform();
+        $data['ip_address'] = $this->input->ip_address();
+        date_default_timezone_set('Africa/Cairo');
+        $data['last_login'] = date('y-m-d h:i:sa');
+        if(empty($this->session->userdata('user_id'))){
+            $dataoff = $data;             
+        } else{
+            $data = $this->UserModel->getLoggedinUserHistory($this->session->userdata('user_id'));
+        }
         $this->load->view('template/header');
         $this->load->view('template/navbar');
-        $this->load->view('home/index', $data[0]);
+        $this->load->view('home/index', $data[0]??$dataoff);
         $this->load->view('template/footer');
     }
 
