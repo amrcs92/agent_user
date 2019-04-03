@@ -9,10 +9,11 @@
                     <?php if(isset($data['error'])):?>
                         <?php echo $data['error']; ?>
                     <?php endif;?>
-                    <?php echo form_open('UserCtrl/changePassword/'.$this->session->userdata('user_id').'/'.$_GET['token']); ?>
+
+                    <?php echo form_open('UserCtrl/changePassword/'.$this->uri->segment('3').'/'.$this->uri->segment('4')); ?>
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="email" name="email" id="email" class="form-control" value="<?php echo''; ?>">
+                            <input type="email" name="email" id="email" class="form-control" value="<?php echo $this->uri->segment('3'); ?>">
                         </div>
                         <div class="form-group">
                             <label for="new_pass">New Password <span class="text-danger">*</span></label>

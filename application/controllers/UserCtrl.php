@@ -457,24 +457,19 @@ class UserCtrl extends CI_Controller
         
         $newPass = $this->input->post('new_password');
 
-        if($this->input->post('new_password')) 
+        if($newPass) 
         {
             if($this->form_validation->run() == TRUE)
             {
                 $data = array(
-                    'password' => password_hash($this->input->post('new_password'), PASSWORD_BCRYPT)
+                    'password' => password_hash($newPass, PASSWORD_BCRYPT)
                 );
                 $this->UserModel->updatePass($userid, $data);
                 $this->session->set_flashdata('password_changed', 'Password Successfully changed');
                 redirect('UserCtrl/login/');
                 
             }            
-        }
-        $this->load->view('template/header');
-        $this->load->view('template/navbar');
-        $this->load->view('change_password/index');        
-        $this->load->view('template/footer');
-        
+        }                
     }
 
     public function resetPass()
@@ -487,11 +482,13 @@ class UserCtrl extends CI_Controller
                 $email = $this->input->post('email');
                 $row = $this->UserModel->emailExist($email);
                 
+                $email = $this->UserModel->getEmailByUserid($row->id);
+
                 $data = array(
-                    'user_id' => $row->id,
+                    'user_id' => $email->user_email,
                     'token' => bin2hex(random_bytes(32))
                 );
-                $this->UserModel->createResetToken($data);
+                $this->UserModel->createResetToken($data);                
 
                 $config = Array(
                     'protocol' => 'smtp',
@@ -506,15 +503,13 @@ class UserCtrl extends CI_Controller
 
                 $this->load->library('email', $config);
                 $this->email->set_newline("\r\n");
-
                 // Set to, from, message, etc.
-                
+                    
                     $this->email->from('someuser@gmail.com', 'Forget password');
                     $this->email->to('example@gmail.com');
                     $this->email->subject('Forget password');
                     $this->email->message('Your password is '. $row->password);
                     $this->email->send();                
-
                     redirect('UserCtrl/changeForgetPassword/'.$data['user_id'].'/'.$data['token']);
             }
         }

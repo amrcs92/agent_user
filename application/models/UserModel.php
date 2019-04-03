@@ -38,12 +38,21 @@ class UserModel extends CI_Model
         $this->db->insert('reset_token', $data);
     }
 
+    public function getEmailByUserid($userid)
+    {
+        $this->db->select("reset_token.*, users.email as user_email")->from('reset_token')->join('users', 'users.id = reset_token.user_id');
+        $this->db->where('user_id', $userid);
+        return $this->db->get()->result()[0];
+    }
+
     // create user history
-    public function createUserHistory($data){
+    public function createUserHistory($data)
+    {
         $this->db->insert('user_history', $data);
     }
 
-    public function getLoggedinUserHistory($userid){
+    public function getLoggedinUserHistory($userid)
+    {
         $query = $this->db->query("SELECT * FROM user_history ORDER BY last_login DESC LIMIT 1");
         $result = $query->result_array();
         return $result;        
