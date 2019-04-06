@@ -13,6 +13,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="form-group">
                             <label for="email">Email</label>
                             <input type="email" name="email" id="email" class="form-control" placeholder="your-mail@example.com">
+                            <span class="text-danger">
+                                <?php echo form_error('email');?> 
+                                <?php if(isset($invalid_email)):?>
+                                    <?php echo $invalid_email; ?>                                    
+                                <?php endif; ?>    
+                            </span>
                         </div>
                         <div class="form-group text-center">
                             <button name="reset" class="btn btn-block btn-success"><i class="glyphicon glyphicon-refresh"></i> Reset Password</button>

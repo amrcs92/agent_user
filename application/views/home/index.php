@@ -6,6 +6,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="row">
         <div class="col-md-12">
             <h1>Welcome to User Agent Management system</h1>
+            <?php $resetError = $this->session->flashdata('reset_account_failed')?>
+            <?php if(isset($resetError)): ?>
+                <div class="alert alert-warning text-center">
+                    <strong><i class="glyphicon glyphicon-warning-sign"></i> <?php echo $this->session->flashdata('reset_account_failed'); ?></strong>
+                </div>    
+            <?php endif; ?>
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
                     <tr>

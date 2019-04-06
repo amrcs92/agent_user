@@ -15,7 +15,9 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
             <li><a href="<?php echo site_url('UserCtrl/index');?>">Home</a></li>
-            <li><a href="<?php echo site_url('UserCtrl/profile/'.$this->session->userdata('user_id'));?>">Profile</a></li>
+            <?php if($this->session->userdata('username') != ''): ?>
+              <li><a href="<?php echo site_url('UserCtrl/profile/'.$this->session->userdata('user_id'));?>">Profile</a></li>
+            <?php endif;?>
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <?php if($this->session->userdata('username') != ''): ?>

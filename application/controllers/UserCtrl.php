@@ -24,7 +24,7 @@ class UserCtrl extends CI_Controller
         $data['os'] = $this->agent->platform();
         $data['ip_address'] = $this->input->ip_address();
         date_default_timezone_set('Africa/Cairo');
-        $data['last_login'] = date('y-m-d h:i:sa');
+        $data['last_login'] = date('y-m-d H:i:sa');
         if(empty($this->session->userdata('user_id'))){
             $dataoff = $data;             
         } else{
@@ -54,7 +54,7 @@ class UserCtrl extends CI_Controller
 
     // insert user data
     public function createUser()
-    {            
+    {      
         // user form data validation array (only required)
         $user = array(
             array(
@@ -152,6 +152,7 @@ class UserCtrl extends CI_Controller
     // check file type
     public function file_check()
     {
+        // if()
         $allowed_mime_type_arr = array('image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/x-png');
         $mime = get_mime_by_extension($_FILES['company_logo']['name']);
         if(isset($_FILES['company_logo']['name']) && $_FILES['company_logo']['name'] != '')
@@ -182,55 +183,60 @@ class UserCtrl extends CI_Controller
     // insert user history (user ip, os, browser details, last time loggedin, user id)
     public function getUser()
     {
-        
-        
-        $this->form_validation->set_rules('username', 'Username', 'required');
-        $this->form_validation->set_rules('password', 'Password', 'required');
-        if($this->form_validation->run())
+        if(empty($this->session->userdata('user_id')))
         {
-            $username = $this->input->post('username');
-            $password = $this->input->post('password');
-
-            $user = $this->UserModel->login($username, $password);
-            
-            if($this->UserModel->login($username, $password))
+            $this->form_validation->set_rules('username', 'Username', 'required');
+            $this->form_validation->set_rules('password', 'Password', 'required');
+            if($this->form_validation->run())
             {
-                // $remember = $this->input->post('remember_me');
-                // if ($remember) 
-                // {
-                //     // Set remember me value in session
-                //     $this->session->set_userdata('remember_me', TRUE);
-                // }
-                $sessionData = array(
-                    'user_id' => $user[0]->id,
-                    'username' => $username                
-                );
-                $this->session->set_userdata($sessionData);
-
-                $data['user_id'] = $user[0]->id;
-                $data['ip_address'] = $this->input->ip_address();
-                $data['device_type'] = $this->agent->platform();
-                $data['browser_details'] = $this->agent->browser() . $this->agent->version();
-
-                // set your timezone according your location 
-                // date_default_timezone_set('your_timezone')
-
-                date_default_timezone_set('Africa/Cairo');
-                $data['last_login'] = date('y-m-d h:i:sa');
-
-                $this->UserModel->createUserHistory($data);
-
-                redirect('UserCtrl/index');
-            } 
-            else 
-            {
-                $this->session->set_flashdata('error', 'Invalid Username and Password');
-                redirect('UserCtrl/login');
+                $username = $this->input->post('username');
+                $password = $this->input->post('password');
+    
+                $user = $this->UserModel->login($username, $password);
+                
+                if($this->UserModel->login($username, $password))
+                {
+                    // $remember = $this->input->post('remember_me');
+                    // if ($remember) 
+                    // {
+                    //     // Set remember me value in session
+                    //     $this->session->set_userdata('remember_me', TRUE);
+                    // }
+                    $sessionData = array(
+                        'user_id' => $user[0]->id,
+                        'username' => $username                
+                    );
+                    $this->session->set_userdata($sessionData);
+    
+                    $data['user_id'] = $user[0]->id;
+                    $data['ip_address'] = $this->input->ip_address();
+                    $data['device_type'] = $this->agent->platform();
+                    $data['browser_details'] = $this->agent->browser() . $this->agent->version();
+    
+                    // set your timezone according your location 
+                    // date_default_timezone_set('your_timezone')
+    
+                    date_default_timezone_set('Africa/Cairo');
+                    $data['last_login'] = date('y-m-d H:i:s');
+    
+                    $this->UserModel->createUserHistory($data);
+    
+                    redirect('UserCtrl/index');
+                } 
+                else 
+                {
+                    $this->session->set_flashdata('error', 'Invalid Username and Password');
+                    redirect('UserCtrl/login');
+                }
             }
-        }
-        else
+            else
+            {
+                $this->login();
+            }
+        } 
+        else 
         {
-            $this->login();
+            redirect('UserCtrl/index');
         }
     }
 
@@ -243,41 +249,63 @@ class UserCtrl extends CI_Controller
 
     public function forgetPass()
     {
-        $this->load->view('template/header');
-        $this->load->view('template/navbar');
-        $this->load->view('forget_pass/index');
-        $this->load->view('template/footer');
+        if(!empty($this->session->userdata('user_id')))
+        {
+            redirect('UserCtrl/index');
+        } 
+        else
+        {
+            $this->load->view('template/header');
+            $this->load->view('template/navbar');
+            $this->load->view('reset_account/index');
+            $this->load->view('template/footer');
+        
+        }
     }
 
     // profile page
 
-    public function profile($userid)
+    public function profile($userid=null)
     {
-        $this->load->view('template/header');
-        $this->load->view('template/navbar');
-        $userid = $this->session->userdata('user_id');
-        $userData = $this->UserModel->read($userid);
-        $this->load->view('user/read', $userData[0]);
-        $this->load->view('template/footer');
+        if(!empty($this->session->userdata('user_id')))
+        {
+            $this->load->view('template/header');
+            $this->load->view('template/navbar');
+            $userid = $this->session->userdata('user_id');
+            $userData = $this->UserModel->read($userid);
+            $this->load->view('user/read', $userData[0]);
+            $this->load->view('template/footer');
+        } 
+        else
+        {
+            redirect('UserCtrl/index');
+        }
     }
 
     // edit profile page
 
     public function editProfile()
     {
+        if(!empty($this->session->userdata('user_id')))
+        {
         $this->load->view('template/header');
         $this->load->view('template/navbar');
         $userid = $this->session->userdata('user_id');
         $userData = $this->UserModel->read($userid);
         $this->load->view('user/update', $userData[0]);
         $this->load->view('template/footer');
+        }
+        else 
+        {
+            redirect('UserCtrl/index');
+        }
     }
 
     // 
 
-    public function updateUser($userid)
+    public function updateUser($userid=null)
     {
-        if($this->session->userdata('user_id') == $userid)
+        if(!empty($this->session->userdata('user_id')))
         {
             $user = array(
                 array(
@@ -316,6 +344,8 @@ class UserCtrl extends CI_Controller
             // $config['max_height']           = 768;
             $this->load->library('upload', $config);
 
+            $userid = $this->session->userdata('user_id');
+
             if($this->form_validation->run() == true)
             {
 
@@ -350,7 +380,6 @@ class UserCtrl extends CI_Controller
                     }          
                 }
 
-                $userid = $this->session->userdata('user_id');
                 $userUpdated = $this->UserModel->update($userid, $data);
                 if($userUpdated){
                     $this->session->set_flashdata('success', 'Profile updated successfully');
@@ -362,11 +391,16 @@ class UserCtrl extends CI_Controller
                 redirect('UserCtrl/editProfile');
             }
         }
+        else 
+        {
+            redirect('UserCtrl/index');
+        }
     }
 
-    public function changePassword($userid)
+    // change password in your profile
+    public function changePassword($userid=null)
     {
-        if($this->session->userdata('user_id') == $userid){
+        if(!empty($this->session->userdata('user_id'))){
             $validation = array(
                 array(
                     'field' => 'old_password',
@@ -425,117 +459,210 @@ class UserCtrl extends CI_Controller
             $this->load->view('change_password/index');        
             $this->load->view('template/footer');
         }
+        else 
+        {
+            redirect('UserCtrl/index');
+        }
     }
 
-    public function changeForgetPassword($userid, $token)
+    //reset account & forget password 
+    public function changeForgetPassword($tokenid=null, $userid=null, $token=null)
     {
-        $this->load->view('template/header');
-        $this->load->view('template/navbar');
-        $this->load->view('change_forget_pass/index');
-        $this->load->view('template/footer');
-
-        $validation = array(
-            array(
-                'field' => 'new_password',
-                'label' => 'New Password',
-                'rules' => 'required',
-                'errors' => array(
-                    'required' => 'Please Enter your new password'
-                )
-            ),
-            array(
-                'field' => 'same_password',
-                'label' => 'Same Password',
-                'rules' => 'required',
-                'errors' => array(
-                    'required' => 'Please Enter your new password again'
-                )
-            )
-        );
-
-        $this->form_validation->set_rules($validation);
-        
-        $newPass = $this->input->post('new_password');
-
-        if($newPass) 
+        if(!empty($this->session->userdata('user_id')))
         {
-            if($this->form_validation->run() == TRUE)
+            redirect('UserCtrl/index');
+        }
+        else{
+            if($tokenid != null || $userid != null || $token != null)
             {
-                $data = array(
-                    'password' => password_hash($newPass, PASSWORD_BCRYPT)
-                );
-                $this->UserModel->updatePass($userid, $data);
-                $this->session->set_flashdata('password_changed', 'Password Successfully changed');
-                redirect('UserCtrl/login/');
+                $isUsedToken = $this->UserModel->getResetToken($tokenid);
                 
-            }            
-        }                
+                date_default_timezone_set('Africa/Cairo');
+                
+                if($isUsedToken[0]->used_token == 0 && (time() - strtotime($isUsedToken[0]->created_at) <= 1800))
+                {
+                    $err['token_will_expire'] = 'Token will expire after 30 minutes!!';                                    
+                } else{
+                    $err['token_expired'] = 'Token expired, reset you account again, redirecting after 3 seconds';
+                    echo "<script> 
+                        setTimeout(function(){
+                            window.location.href ='".base_url()."UserCtrl/index';
+                        }, 3000);      
+                    </script>";            
+                }
+                
+                $validation = array(
+                    array(
+                        'field' => 'new_password',
+                        'label' => 'New Password',
+                        'rules' => 'required|trim|matches[same_password]|min_length[8]',
+                        'errors' => array(
+                            'required' => 'Please Enter your new password'
+                        )
+                    ),
+                    array(
+                        'field' => 'same_password',
+                        'label' => 'Same Password',
+                        'rules' => 'required|trim|min_length[8]',
+                        'errors' => array(
+                            'required' => 'Please Enter your new password again'
+                        )
+                    )
+                );
+        
+                $this->form_validation->set_rules($validation);
+        
+                $newPass = $this->input->post('new_password');
+                $samePass = $this->input->post('same_password');
+        
+                if($this->form_validation->run() !== FALSE)
+                {
+                    $data = array(
+                        'password' => password_hash($newPass, PASSWORD_BCRYPT)
+                    );
+                    $this->UserModel->updatePass($userid, $data);
+                    $this->UserModel->updateTokenStatus($tokenid, $userid);
+                    
+                    redirect('UserCtrl/login/');                
+                }
+                else
+                {
+                    $this->load->view('template/header');
+                    $this->load->view('template/navbar');
+                    if(isset($err))
+                    {
+                        $this->load->view('change_forget_pass/index', $err);
+                    }
+                    else{
+                        $this->load->view('change_forget_pass/index');
+                    }
+                    $this->load->view('template/footer');
+                }    
+            } 
+            else
+            {
+                redirect('UserCtrl/index');
+            }
+        }
     }
 
     public function resetPass()
     {
-        if(isset($_POST['email']) && !empty($_POST['email']))
+        if(!empty($this->session->userdata('user_id')))
         {
-            $this->form_validation->set_rules('email', 'Email Address', 'trim|required|min_length[6]|max_length[50]|valid_email');
-            if($this->form_validation->run() == TRUE)
+            $this->session->set_flashdata('reset_account_failed', 'can\'t reset account while loggedin !!');
+            redirect('UserCtrl/index');
+        }
+        else
+        {
+            $resetAccount = array(
+                array(
+                    'field' => 'email',
+                    'label' => 'Email Address',
+                    'rules' => 'required|trim|min_length[6]|max_length[50]|valid_email',
+                    'errors' => array(
+                        'required' => 'Email is required to reset the account!!',                        
+                    )
+                )
+            );
+            
+            $this->form_validation->set_rules($resetAccount);
+
+            $email = $this->input->post('email');
+            $row = $this->UserModel->emailExist($email);
+            if($row == null && $email != $row)
             {
-                $email = $this->input->post('email');
-                $row = $this->UserModel->emailExist($email);
-                
-                $email = $this->UserModel->getEmailByUserid($row->id);
+                $invalidErr = array();
+                $invalidErr['invalid_email'] = 'Invalid Email, Email doesn\'t exist';
 
-                $data = array(
-                    'user_id' => $email->user_email,
-                    'token' => bin2hex(random_bytes(32))
-                );
-                $this->UserModel->createResetToken($data);                
-
-                $config = Array(
-                    'protocol' => 'smtp',
-                    'smtp_host' => 'ssl://smtp.googlemail.com',
-                    'smtp_port' => 465,
-                    'smtp_user' => 'example@gmail.com',
-                    'smtp_pass' => 'xxxxxx',
-                    'mailtype'  => 'html', 
-                    'starttls'  => true,
-                    'newline'   => "\r\n"
-                );
-
-                $this->load->library('email', $config);
-                $this->email->set_newline("\r\n");
-                // Set to, from, message, etc.
+                $this->load->view('template/header');
+                $this->load->view('template/navbar');
+                $this->load->view('reset_account/index', $invalidErr);
+                $this->load->view('template/footer');                                                  
+            }
+            else 
+            {
+                if($this->form_validation->run() !== FALSE || ($email != ''))
+                {                         
                     
+                    $emailRow = $this->UserModel->getEmailByUserid($row->id);
+                    
+                    date_default_timezone_set('Africa/Cairo');
+    
+                    $data = array(
+                        'user_id' => $row->id,
+                        'token' => bin2hex(random_bytes(32)),                    
+                        'created_at' => date('Y-m-d H:i:sa'),
+                        'used_token' => 0
+                    );
+                    $tokenId = $this->UserModel->createResetToken($data);                
+                    
+                    $config = Array(
+                        'protocol' => 'smtp',
+                        'smtp_host' => 'ssl://smtp.googlemail.com',
+                        'smtp_port' => 465,
+                        'smtp_user' => 'amrcs1992@gmail.com',
+                        'smtp_pass' => 'AmrIsmailCS1992',
+                        'mailtype'  => 'html', 
+                        'starttls'  => true,
+                        'newline'   => "\r\n"
+                    );
+        
+                    $this->load->library('email', $config);
+                    $this->email->set_newline("\r\n");
+                    // Set to, from, message, etc.
+                        
                     $this->email->from('someuser@gmail.com', 'Forget password');
-                    $this->email->to('example@gmail.com');
+                    $this->email->to('amrcs1992@gmail.com');
                     $this->email->subject('Forget password');
-                    $this->email->message('Your password is '. $row->password);
+                    $this->email->message("
+                    <p>If you want to reset your account click on the link below</p>".
+                    "<br/>".base_url()."UserCtrl/changeForgetPassword/".$tokenId."/".$data['user_id']."/".$data['token'].
+                    "<p>OR click on the button below</p><br/>".
+                    "<h4><a href=".base_url()."UserCtrl/changeForgetPassword/".$tokenId."/".$data['user_id']."/".$data['token']." style='padding:20px; background:#5bc0de; border-radius:5px; border-color:#46b8da; color:#fff;'>Reset account</a></h4>");
                     $this->email->send();                
-                    redirect('UserCtrl/changeForgetPassword/'.$data['user_id'].'/'.$data['token']);
+        
+                    $this->load->view('template/header');
+                    $this->load->view('template/navbar');
+                    $this->load->view('reset_account/message');
+                    $this->load->view('template/footer');                
+                } 
+                else
+                {                   
+                    $this->load->view('template/header');
+                    $this->load->view('template/navbar');
+                    $this->load->view('reset_account/index');
+                    $this->load->view('template/footer');
+                }            
             }
         }
     }
 
     public function deleteAccount()
     {
-        if(empty($this->session->userdata('username')))
-        {
-            redirect('UserCtrl/login');
-        } 
-        else
+        if(!empty($this->session->userdata('user_id')))
         {
             $this->load->view('template/header');
             $this->load->view('template/navbar');
             $this->load->view('user/delete');
             $this->load->view('template/footer');
+        } 
+        else
+        {
+            redirect('UserCtrl/login');
         }
     }
 
     public function deleteUser($userid)
     {
-        if($this->session->userdata('user_id') == $userid)
+        if(!empty($this->session->userdata('user_id')))
         {
             $this->UserModel->remove($userid);
             $this->session->sess_destroy();
+            redirect('UserCtrl/index');
+        }
+        else 
+        {
             redirect('UserCtrl/index');
         }
     }
