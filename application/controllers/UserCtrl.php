@@ -8,23 +8,31 @@ class UserCtrl extends CI_Controller
     function __construct()
     {
         parent::__construct();
-        $this->load->helper('form');
-        $this->load->library('form_validation');
-        $this->load->library('session');       
-        $this->load->model('UserModel');
-        $this->load->helper('file');
-        $this->load->library('user_agent');
+        $this->load->helper('form'); /* load form deault helper */
+        $this->load->library('form_validation'); /* load form validation default library */
+        $this->load->library('session'); /* load session default library */
+        $this->load->model('UserModel'); /* load User Model custom model */
+        $this->load->helper('file'); /* load file default helper */
+        $this->load->library('user_agent'); /* load information about browser library */        
     }
 
     // home page
     public function index()
     {
+        // display user browser & device infromation:
+        // display browser type
         $data['browser'] = $this->agent->browser();
+        // display browser version
         $data['browser_version'] = $this->agent->version();
+        // display user device os
         $data['os'] = $this->agent->platform();
+        // display user ip address
         $data['ip_address'] = $this->input->ip_address();
+        // set time zone to africa/cairo
         date_default_timezone_set('Africa/Cairo');
-        $data['last_login'] = date('y-m-d H:i:sa');
+        // display user loggedin/opened this page
+        $data['last_login'] = date('d-m-Y h:i:s a');
+
         if(empty($this->session->userdata('user_id'))){
             $dataoff = $data;             
         } else{
@@ -196,17 +204,38 @@ class UserCtrl extends CI_Controller
                 
                 if($this->UserModel->login($username, $password))
                 {
-                    // $remember = $this->input->post('remember_me');
-                    // if ($remember) 
-                    // {
-                    //     // Set remember me value in session
-                    //     $this->session->set_userdata('remember_me', TRUE);
-                    // }
-                    $sessionData = array(
-                        'user_id' => $user[0]->id,
-                        'username' => $username                
-                    );
-                    $this->session->set_userdata($sessionData);
+                    $this->load->helper('cookie'); /* load cookie default form helper */
+                    $remember = $this->input->post('remember_me');
+                    
+                    $usernameName = 'username';
+                    $usernameValue = $username;
+                    $usernameExpire = time() + (86400 * 30); 
+                    $usernamePath = '/';                    
+                    
+                    if ($remember) 
+                    {
+                        setcookie($usernameName, $usernameValue, $usernameExpire, $usernamePath); // create cookie for username
+                    }
+                    else
+                    {
+                        setcookie($usernameName, '', 0, '/');                        
+                    }
+
+                    if(get_cookie('username') != null){
+                        $sessionData = array(
+                            'user_id' => $user[0]->id,
+                            'username' => $usernameName                
+                        );
+    
+                        $this->session->set_userdata($sessionData);
+                    } else{
+                        $sessionData = array(
+                            'user_id' => $user[0]->id,
+                            'username' => $username                
+                        );
+    
+                        $this->session->set_userdata($sessionData);
+                    }
     
                     $data['user_id'] = $user[0]->id;
                     $data['ip_address'] = $this->input->ip_address();
@@ -244,6 +273,7 @@ class UserCtrl extends CI_Controller
     {
         $this->session->unset_userdata([]);
         $this->session->sess_destroy();
+        setcookie('username', '', 0, '/');        
         redirect('UserCtrl/index');
     }
 

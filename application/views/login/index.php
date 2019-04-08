@@ -27,20 +27,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php echo form_open('UserCtrl/getUser');?>
                         <div class="form-group">
                             <label for="username">Username</label>
-                            <input type="text" name="username" id="username" class="form-control" placeholder="Please enter your username">
+                            <input type="text" name="username" id="username" class="form-control" value="<?php if(get_cookie('username')){ echo get_cookie('username'); }?>" placeholder="Please enter your username">
                             <span class="text-danger"><?php echo form_error('username')?></span>
                         </div>
 
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" name="password" id="password" class="form-control" placeholder="Please enter you password">
+                            <input type="password" name="password" id="password" class="form-control" value="<?php if(get_cookie('password')){ echo get_cookie('password'); }?>" placeholder="Please enter you password">
                             <span class="text-danger"><?php echo form_error('password')?></span>
                         </div>
                         <div class="form-group">
                             <a href="<?php echo site_url('UserCtrl/forgetPass');?>" class="text-primary col-md-4">Forgot password ?</a>
                             <a href="<?php echo site_url('UserCtrl/register');?>" class="text-secondary col-md-4">Not Registered ?</a>                
                             <div class="form-check col-md-4" style="display:inline-block;">
-                                <input type="checkbox" name="remember_me" id="remember_me" class="form-check-input">
+                                <input type="checkbox" name="remember_me" id="remember_me" class="form-check-input" value="Remember me">
                                 <label for="remember_me">Remember me</label>
                             </div>
                         </div>

@@ -28,9 +28,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </tr>
                     <tr>
                         <td><b>Last time loggedin</b></td>
-                        <td><?php echo $last_login; ?></td>
+                        <td><?php echo empty($this->session->userdata('user_id'))?$last_login:date('d-m-Y h:i:s a', strtotime($last_login)); ?></td>
                     </tr>
-                </table>
+                </table>             
             </div>
         </div>
     </div>
