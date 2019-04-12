@@ -9,8 +9,8 @@
         var selected_option = $('#state option:selected');
         if(selected_option){
             $('#state').val("<?php echo $state??''; ?>");
-        }
+        }   
     });
-</script>
+</script>  
 </body>
 </html>

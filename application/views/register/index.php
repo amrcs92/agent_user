@@ -8,7 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="panel-heading">
                     <h2 class="panel-title text-center"><strong>Register</strong></h2>        
                 </div>
-                <div class="panel-body">
+                <div class="panel-body light-grey-bg">
                     <?php echo form_open_multipart('UserCtrl/createUser'); ?>
                         <div class="form-group col-md-6">
                             <label for="username">Username <span class="text-danger">*</span></label>
@@ -78,7 +78,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </select>
                         </div>
                         <div class="form-group col-md-12">
-                            <button class="btn btn-primary btn-block" name="register">Register</button>
+                            <button class="btn btn-primary btn-block" id="register" name="register">Register</button>
                         </div>
                     </form>                
                 </div>

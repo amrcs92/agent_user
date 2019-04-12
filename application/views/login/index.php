@@ -8,7 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="panel-heading">
                     <h2 class="panel-title text-center"><strong>Login</strong></h2>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body light-grey-bg">
                     <?php if($this->session->flashdata('success')): ?>
                         <div class="alert alert-success" role="alert">
                             <h5><?php echo $this->session->flashdata('success'); ?></h5>
@@ -38,7 +38,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                         <div class="form-group">
                             <a href="<?php echo site_url('UserCtrl/forgetPass');?>" class="text-primary col-md-4">Forgot password ?</a>
-                            <a href="<?php echo site_url('UserCtrl/register');?>" class="text-secondary col-md-4">Not Registered ?</a>                
+                            <a href="<?php echo site_url('UserCtrl/register');?>" class="text-secondary col-md-4">Not Registered ?</a>                            
                             <div class="form-check col-md-4" style="display:inline-block;">
                                 <input type="checkbox" name="remember_me" id="remember_me" class="form-check-input" value="Remember me">
                                 <label for="remember_me">Remember me</label>
